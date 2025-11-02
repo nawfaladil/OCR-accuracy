@@ -1,46 +1,141 @@
-# Getting Started with Create React App
+# VideoCodage Tool - OCR Field Editor
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A web-based tool for visualizing and editing OCR-extracted field data with interactive PDF annotation. Users can view the original PDF, click on fields to highlight their source bounding boxes, edit field values, and export the modified JSON.
+
+## Features
+
+- 📄 **PDF Viewer**: Display original PDF documents with zoom and page navigation
+- 🎯 **Interactive Highlighting**: Click on fields to highlight their bounding boxes in the PDF
+- ✏️ **Field Editing**: Inline editing of field values with visual indication of modifications
+- 🔍 **Search**: Search fields by name or value
+- 💾 **Export**: Download modified JSON with updated field values
+- 📊 **Confidence Display**: Visual indicators showing OCR confidence levels
+
+## Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn
+
+## Installation
+
+1. Install dependencies:
+```bash
+npm install --legacy-peer-deps
+```
+
+Note: We use `--legacy-peer-deps` because `react-pdf` v7 doesn't officially support React 19 yet, but it works fine with the legacy peer deps flag.
+
+## Usage
+
+### Starting the Application
+
+```bash
+npm start
+```
+
+The application will open at [http://localhost:3000](http://localhost:3000)
+
+### Using the Tool
+
+1. **Upload PDF**: Click "Upload PDF" in the header to load the original PDF document
+2. **Upload JSON**: Click "Upload JSON" to load the OCR JSON file with field data
+3. **View Fields**: All extracted fields appear in the right panel
+4. **Highlight Fields**: Click on any field to see its bounding box highlighted in the PDF
+5. **Edit Fields**: Click the edit icon on any field to modify its value
+6. **Export**: Click "Export JSON" to download the modified JSON file
+
+### OCR JSON Format
+
+The tool expects JSON files with the following structure:
+
+```json
+{
+  "document": {
+    "filename": "document.pdf",
+    "pages": [
+      {
+        "pageNumber": 1,
+        "fields": [
+          {
+            "fieldName": "Invoice Number",
+            "fieldValue": "INV-12345",
+            "boundingBox": {
+              "x": 100,
+              "y": 200,
+              "width": 150,
+              "height": 30
+            },
+            "confidence": 0.95,
+            "pageNumber": 1
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Note**: PDF coordinates use bottom-left origin. The tool automatically transforms these to viewport coordinates for display.
+
+### Sample Data
+
+A sample JSON file is provided at `public/sample.json` for testing.
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── PDFViewer/          # PDF rendering and highlighting
+│   ├── FieldEditor/         # Field list and editing
+│   ├── Layout/              # Main application layout
+│   └── FileUpload/          # File upload components
+├── store/                   # Zustand state management
+├── types/                   # TypeScript type definitions
+└── utils/                   # Utility functions
+```
+
+## Technologies
+
+- **React** 19.2.0 - UI framework
+- **TypeScript** 5.0.0 - Type safety
+- **Material-UI** 5.14.0 - Component library
+- **react-pdf** 7.5.1 - PDF rendering
+- **Zustand** 4.4.0 - State management
 
 ## Available Scripts
 
-In the project directory, you can run:
-
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Runs the app in development mode at [http://localhost:3000](http://localhost:3000)
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds the app for production to the `build` folder.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### `npm test`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Launches the test runner in interactive watch mode.
 
-### `npm run eject`
+## Troubleshooting
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### PDF Not Displaying
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Ensure the PDF file is not corrupted
+- Check browser console for errors
+- Verify PDF.js worker is loading correctly
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Highlighting Not Working
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- Ensure the JSON bounding box coordinates match the PDF coordinate system
+- Check that field page numbers match the displayed PDF page
+- Verify the PDF and JSON correspond to the same document
 
-## Learn More
+### Export Issues
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- Ensure at least one field has been modified
+- Check browser download permissions
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## License
+
+This project is private and for internal use only.
