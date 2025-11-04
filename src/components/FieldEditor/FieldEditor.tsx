@@ -1,12 +1,15 @@
 import React, { useMemo, useState } from 'react';
-import { Box, Typography, TextField, Button, InputAdornment } from '@mui/material';
-import { Download, Search } from '@mui/icons-material';
+import { Box, Typography, TextField, InputAdornment } from '@mui/material';
+import { Search } from '@mui/icons-material';
 import { useAppStore } from '../../store/appStore';
 import { FieldItem } from './FieldItem';
 import { getAllFields } from '../../utils/pdfUtils';
-import { exportJSON } from '../../utils/jsonUtils';
 
-export const FieldEditor: React.FC = () => {
+interface FieldEditorProps {
+  documentId: string;
+}
+
+export const FieldEditor: React.FC<FieldEditorProps> = ({ documentId }) => {
   const { ocrDocument, selectedField } = useAppStore();
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -25,12 +28,6 @@ export const FieldEditor: React.FC = () => {
     
     return fields;
   }, [ocrDocument, searchQuery]);
-
-  const handleExport = () => {
-    if (ocrDocument) {
-      exportJSON(ocrDocument, ocrDocument.document.filename.replace('.pdf', '_modified.json'));
-    }
-  };
 
   if (!ocrDocument) {
     return (
@@ -64,14 +61,6 @@ export const FieldEditor: React.FC = () => {
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6">Fields ({allFields.length})</Typography>
-          <Button
-            variant="contained"
-            startIcon={<Download />}
-            onClick={handleExport}
-            disabled={!ocrDocument}
-          >
-            Export JSON
-          </Button>
         </Box>
 
         <TextField
@@ -104,10 +93,11 @@ export const FieldEditor: React.FC = () => {
             No fields found
           </Typography>
         ) : (
-          allFields.map((field) => (
+          allFields.map((field: any) => (
             <FieldItem
-              key={`${field.fieldName}-${field.pageNumber}`}
+              key={`${field.id || field.fieldName}-${field.pageNumber}`}
               field={field}
+              documentId={documentId}
               isSelected={
                 selectedField?.fieldName === field.fieldName &&
                 selectedField?.pageNumber === field.pageNumber

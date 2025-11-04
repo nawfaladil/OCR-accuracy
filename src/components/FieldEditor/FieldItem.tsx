@@ -11,16 +11,19 @@ import {
 import { Edit, Check, Close } from '@mui/icons-material';
 import { Field } from '../../types';
 import { useAppStore } from '../../store/appStore';
+import { documentService } from '../../services/documentService';
 
 interface FieldItemProps {
-  field: Field;
+  field: Field & { id?: string };
+  documentId: string;
   isSelected: boolean;
 }
 
-export const FieldItem: React.FC<FieldItemProps> = ({ field, isSelected }) => {
+export const FieldItem: React.FC<FieldItemProps> = ({ field, documentId, isSelected }) => {
   const { updateFieldValue, setSelectedField, ocrDocument } = useAppStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(field.fieldValue);
+  const [saving, setSaving] = useState(false);
 
   // Check if field has been modified
   const originalField = ocrDocument?.document.pages
@@ -38,9 +41,25 @@ export const FieldItem: React.FC<FieldItemProps> = ({ field, isSelected }) => {
     setEditValue(field.fieldValue);
   };
 
-  const handleSave = () => {
-    updateFieldValue(field.fieldName, field.pageNumber, editValue);
-    setIsEditing(false);
+  const handleSave = async () => {
+    if (field.id) {
+      try {
+        setSaving(true);
+        await documentService.updateField(documentId, field.id, editValue);
+        updateFieldValue(field.fieldName, field.pageNumber, editValue);
+        setIsEditing(false);
+      } catch (error) {
+        console.error('Error updating field:', error);
+        // Still update local state for UI responsiveness
+        updateFieldValue(field.fieldName, field.pageNumber, editValue);
+        setIsEditing(false);
+      } finally {
+        setSaving(false);
+      }
+    } else {
+      updateFieldValue(field.fieldName, field.pageNumber, editValue);
+      setIsEditing(false);
+    }
   };
 
   const handleCancel = () => {
@@ -101,6 +120,7 @@ export const FieldItem: React.FC<FieldItemProps> = ({ field, isSelected }) => {
                 e.stopPropagation();
                 handleSave();
               }}
+              disabled={saving}
             >
               <Check />
             </IconButton>

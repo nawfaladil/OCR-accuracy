@@ -12,13 +12,20 @@ import { transformPDFToViewport } from '../../utils/coordinateUtils';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 export const PDFViewer: React.FC = () => {
-  const { pdfFile, ocrDocument, selectedField, currentPage, zoom, setCurrentPage, setZoom } = useAppStore();
+  const { pdfUrl, pdfFile, ocrDocument, selectedField, currentPage, zoom, setCurrentPage, setZoom } = useAppStore();
   const [numPages, setNumPages] = useState<number>(0);
   const [pageWidth, setPageWidth] = useState<number>(0);
   const [pageHeight, setPageHeight] = useState<number>(0);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   const handleDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
+    setPdfError(null);
+  };
+
+  const handleDocumentLoadError = (error: Error) => {
+    console.error('PDF load error:', error);
+    setPdfError('Failed to load PDF file.');
   };
 
   const handlePageLoadSuccess = (page: any) => {
@@ -66,7 +73,9 @@ export const PDFViewer: React.FC = () => {
     return viewportCoords;
   };
 
-  if (!pdfFile) {
+  const pdfSource = pdfUrl || pdfFile;
+
+  if (!pdfSource) {
     return (
       <Box
         sx={{
@@ -79,8 +88,26 @@ export const PDFViewer: React.FC = () => {
           bgcolor: '#f5f5f5',
         }}
       >
-        <Typography variant="body1" color="text.secondary">
-          Upload a PDF file to view
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (pdfError) {
+    return (
+      <Box
+        sx={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '2px dashed #ccc',
+          bgcolor: '#f5f5f5',
+        }}
+      >
+        <Typography variant="body1" color="error">
+          {pdfError}
         </Typography>
       </Box>
     );
@@ -151,8 +178,13 @@ export const PDFViewer: React.FC = () => {
           }}
         >
           <Document
-            file={pdfFile}
+            file={pdfSource}
             onLoadSuccess={handleDocumentLoadSuccess}
+            onLoadError={handleDocumentLoadError}
+            options={{
+              httpHeaders: {},
+              withCredentials: false,
+            }}
             loading={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <CircularProgress size={40} />
@@ -164,7 +196,7 @@ export const PDFViewer: React.FC = () => {
               pageNumber={currentPage}
               scale={zoom}
               onLoadSuccess={handlePageLoadSuccess}
-              renderTextLayer={true}
+              renderTextLayer={false}
               renderAnnotationLayer={true}
             />
           </Document>

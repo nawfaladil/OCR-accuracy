@@ -41,7 +41,7 @@ export const MainLayout: React.FC = () => {
             overflow: 'hidden',
           }}
         >
-          <FieldEditor />
+          <FieldEditor documentId="" />
         </Box>
       </Box>
     </Box>
