@@ -55,13 +55,13 @@ cd server
 npm install
 ```
 
-3. Create `.env` file in `server/` directory:
+3. Create `.env` file in `server/` directory (Docker DB defaults below):
 ```env
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=videocodage_db
-DB_USER=postgres
-DB_PASSWORD=your_password
+DB_USER=videocodage_user
+DB_PASSWORD=videocodage_pw
 PORT=3001
 SESSION_SECRET=your-secret-key-change-in-production
 FRONTEND_URL=http://localhost:3000
@@ -89,7 +89,16 @@ Note: We use `--legacy-peer-deps` because `react-pdf` v7 doesn't officially supp
 
 ### Starting the Application
 
-1. **Start the backend server** (in `server/` directory):
+1. **Start the database (Docker)** from project root:
+```bash
+docker compose up -d db
+```
+Optional: verify readiness with:
+```bash
+docker compose exec db pg_isready -U videocodage_user -d videocodage_db
+```
+
+2. **Start the backend server** (in `server/` directory):
 ```bash
 cd server
 npm run dev
@@ -97,7 +106,7 @@ npm run dev
 
 The backend will run on [http://localhost:3001](http://localhost:3001)
 
-2. **Start the frontend** (in root directory):
+3. **Start the frontend** (in root directory):
 ```bash
 npm start
 ```

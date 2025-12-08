@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: ocr_accuracy_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: videocodage_db
+      POSTGRES_USER: videocodage_user
+      POSTGRES_PASSWORD: videocodage_pw
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+
